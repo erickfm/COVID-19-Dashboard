@@ -23,22 +23,26 @@ if main_page:
     demographics_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/county_demographics.csv')
 
     st.write('## COVID-19 Dashboard')
-    col_1, col_2 = st.columns([35, 10])
+    col_1, col_2 = st.columns([16, 10])
     col_1a, col_1b = col_1.columns([1, 1])
-    col_3, col_4 = st.columns([35, 10])
+
+    col_2top = col_2.container()
+    col_2a, col_2b, col_2c = col_2.columns([1, 1, 1])
+    col_2bottom = col_2.container()
     size = col_1a.selectbox('size', ['Fatality Rate', 'Deaths'], index=1)
     color = col_1b.selectbox('color', ['Fatality Rate', 'Deaths'], index=0)
-    county_state = col_4.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'], index=234)
-    agg_option = col_4.selectbox('Aggregation Options', ['Cumulative', 'Daily', 'Daily Rolling Average'])
+    county_state = col_2a.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'], index=234)
+    agg_option = col_2b.selectbox('Aggregation Options', ['Cumulative', 'Daily', 'Daily Rolling Average'])
+    col_2c.write('#')
     if agg_option == 'Daily Rolling Average':
-        avg_window = col_4.slider('Average Window', 2, 30, value=7)
+        avg_window = col_2bottom.slider('Average Window', 2, 30, value=7)
     else:
         avg_window = None
 
-    predictive_analytics = col_4.checkbox('Predictive Analytics')
+    predictive_analytics = col_2c.checkbox('Predictive Analytics')
     if predictive_analytics:
-        forward_days = col_4.slider('Forecast Length', 0, None, 1095)
-        test_days = col_4.slider('Test Length', 0, 1095, 0)
+        forward_days = col_2bottom.slider('Forecast Length', 0, None, 1095)
+        test_days = col_2bottom.slider('Test Length', 0, 1095, 0)
     else:
         forward_days = None
         test_days = None
@@ -55,9 +59,13 @@ if main_page:
     col_1.plotly_chart(fig, use_container_width=True, theme=None, height=100)
     table = data.sort_values('Fatality Rate', ascending=0).drop(columns=['Lat', 'Long_', 'County, State'])
     table = table.drop(columns=['County', 'State']).rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
-    col_2.write('##### US Counties')
-    col_2.dataframe(table, use_container_width=True, hide_index=True, height=500)
-    col_3.plotly_chart(fig_ts, use_container_width=True)
+    col_2top.write('##### US Counties')
+    if predictive_analytics:
+        table_height = 200
+    else:
+        table_height = 400
+    col_2top.dataframe(table, use_container_width=True, hide_index=True, height=table_height)
+    col_2bottom.plotly_chart(fig_ts, use_container_width=True)
 
 
 

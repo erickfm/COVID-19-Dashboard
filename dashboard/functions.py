@@ -129,6 +129,11 @@ def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color
     data = data[(data['Lat'] != 0) & (data['Long_'] != 0)]
     data = data[data['Deaths'] != 0]
 
+    # Better Column Names
+    data.rename(columns={'Age.Percent 65 and Older': 'Percent 65+',
+                         'Income.Median Houseold Income': 'Median Income',
+                         'Population.Population per Square Mile': 'Population Density'}, inplace=True)
+
     # Create a scatter_mapbox plot
     fig = px.scatter_mapbox(
         data,
@@ -139,7 +144,8 @@ def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color
         hover_name="County, State",
         hover_data=["Confirmed Cases", "Deaths", "Fatality Rate"],
         zoom=3.5,
-        title=f"COVID-19 Dashboard as of {recent_date}"
+        title=f"COVID-19 Dashboard as of {recent_date}",
+        height=850,
     )
 
     fig.update_layout(mapbox_style="open-street-map")
