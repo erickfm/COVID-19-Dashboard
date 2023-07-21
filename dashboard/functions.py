@@ -8,20 +8,31 @@ from prophet.plot import plot_plotly, plot_components_plotly
 import plotly.graph_objects as go
 
 
-def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, forward_days, agg_option, avg_window, predictive_analytics):
+def get_time_series(confirmed_cases_data, deaths_data, dataset, county_state, test_days, forward_days, agg_option, avg_window, predictive_analytics):
     county_dict = {k: v for k, v in
                    zip(list(confirmed_cases_data['Admin2'] + ', ' + confirmed_cases_data['Province_State']),
                        list(confirmed_cases_data['Admin2']))}
     county = county_dict[county_state]
 
     # Load the data
-    df = confirmed_cases_data
+    if dataset == 'Deaths':
+        df = deaths_data
+    else:
+        df = confirmed_cases_data
     # Filter the data for Los Angeles
     df_la = df[df['Admin2'] == county]
     # Drop the non-date columns
-    df_la = df_la.drop(
+    if dataset == 'Deaths':
+        df_la = df_la.drop(
         columns=['UID', 'iso2', 'iso3', 'code3', 'FIPS', 'Admin2', 'Province_State', 'Country_Region', 'Lat', 'Long_',
-                 'Combined_Key'])
+                 'Combined_Key', 'Population'])
+    else:
+        df_la = df_la.drop(
+            columns=['UID', 'iso2', 'iso3', 'code3', 'FIPS', 'Admin2', 'Province_State', 'Country_Region', 'Lat',
+                     'Long_',
+                     'Combined_Key'])
+
+
     # Convert the data from wide to long format
     df_la_long = df_la.melt(var_name='Date', value_name='Cumulative Count')
     # Convert the 'Date' column to datetime format
@@ -32,6 +43,8 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
     la_data = df_la_long.copy()
     # Sort the data by date
     la_data = la_data.sort_values('Date')
+
+    st.write(la_data)
 
     # Rename the columns
     if agg_option == "Cumulative":
@@ -76,7 +89,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
 
         # Customize the layout
         fig.update_layout(
-            title=f'Forecast and Actual Counts for {county_state}',
+            title=f'Forecast and Actual COVID-19 {dataset} Counts for {county_state}',
             title_x=0.4,
             xaxis_title='Date',
             yaxis_title='Counts',
@@ -94,7 +107,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
         fig = go.Figure(data=go.Scatter(x=la_data['ds'], y=la_data['y']))
 
         # Add title and labels
-        fig.update_layout(title=f'COVID-19 Cases in {county_state}',
+        fig.update_layout(title=f'COVID-19 {dataset} in {county_state}',
                           xaxis_title='Date',
                           yaxis_title='Number of Cases')
 
@@ -145,7 +158,7 @@ def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color
         hover_data=["Confirmed Cases", "Deaths", "Fatality Rate"],
         zoom=3.5,
         title=f"COVID-19 Dashboard as of {recent_date}",
-        height=850,
+        height=880,
     )
 
     fig.update_layout(mapbox_style="open-street-map")

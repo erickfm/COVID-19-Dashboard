@@ -27,15 +27,16 @@ if main_page:
     col_1a, col_1b = col_1.columns([1, 1])
 
     col_2top = col_2.container()
-    col_2a, col_2b, col_2c = col_2.columns([1, 1, 1])
+    col_2a, col_2b, col_2c, col_2d = col_2.columns([15, 10, 10, 10])
     col_2bottom = col_2.container()
-    size = col_1a.selectbox('size', ['Fatality Rate', 'Deaths'], index=1)
-    color = col_1b.selectbox('color', ['Fatality Rate', 'Deaths'], index=0)
-    county_state = col_2a.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'], index=234)
-    agg_option = col_2b.selectbox('Aggregation Options', ['Cumulative', 'Daily', 'Daily Rolling Average'])
-    col_2c.write('#')
+    size = col_1a.selectbox('size', ['Fatality Rate', 'Deaths', 'Confirmed Cases'], index=1)
+    color = col_1b.selectbox('color', ['Fatality Rate', 'Deaths', 'Confirmed Cases'], index=0)
+    county_state = col_2a.selectbox('County', confirmed_cases_data['Admin2'] + ', ' + confirmed_cases_data['Province_State'], index=234)
+    dataset = col_2c.selectbox('Dataset', ['Deaths', 'Cases'], index=1)
+    agg_option = col_2b.selectbox('Aggregation', ['Cumulative', 'Daily', 'Daily Rolling Average'])
+    col_2d.write('#')
 
-    predictive_analytics = col_2c.checkbox('Predictive Analytics')
+    predictive_analytics = col_2d.checkbox('Forecast')
     if predictive_analytics:
         forward_days = col_2bottom.slider('Forecast Length', 0, 1095, 0)
         test_days = col_2bottom.slider('Test Length', 0, 1095, 0)
@@ -51,6 +52,7 @@ if main_page:
     fig, data = get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color)
     fig_ts = get_time_series(confirmed_cases_data,
                              deaths_data,
+                             dataset,
                              county_state,
                              test_days,
                              forward_days,
@@ -69,10 +71,10 @@ if main_page:
     col_2bottom.plotly_chart(fig_ts, use_container_width=True)
 
 
-
 if about_page:
     st.markdown('# About \n')
     st.write(
+        "Plotly-based Streamlit dashboard using CSSE COVID-19 data and Census data aggregated by the CORGIS Dataset Project\n\n"
         "Built by [Erick Martinez](https://github.com/erickfm)."
         "")
     st.markdown(f"""<div><a href="https://github.com/erickfm/Dewey"><img src="{github_image_path}" style="padding-right: 10px;" width="6%" height="6%"></a>""",
