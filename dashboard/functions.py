@@ -44,8 +44,6 @@ def get_time_series(confirmed_cases_data, deaths_data, dataset, county_state, te
     # Sort the data by date
     la_data = la_data.sort_values('Date')
 
-    st.write(la_data)
-
     # Rename the columns
     if agg_option == "Cumulative":
         la_data.columns = ['ds', 'y', 'y_daily']
