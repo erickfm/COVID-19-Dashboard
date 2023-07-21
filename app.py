@@ -81,6 +81,7 @@ if about_page:
     st.markdown('# About \n')
     st.write(
         "Plotly-based Streamlit dashboard using CSSE COVID-19 data and Census data aggregated by the CORGIS Dataset Project\n\n"
+        "Inspiration from [CSSE COVID-19 Dashboard](https://www.arcgis.com/apps/dashboards/bda7594740fd40299423467b48e9ecf6)\n\n"
         "Built by [Erick Martinez](https://github.com/erickfm)."
         "")
     st.markdown(f"""<div><a href="https://github.com/erickfm/COVID"><img src="{github_image_path}" style="padding-right: 10px;" width="6%" height="6%"></a>""",
