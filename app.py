@@ -27,14 +27,14 @@ if main_page:
 
     county_state = col_4.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'])
     fig, data = get_mapbox(confirmed_cases_data, deaths_data)
-    # fig_ts = get_time_series(confirmed_cases_data, deaths_data, county_state)
+    fig_ts = get_time_series(confirmed_cases_data, deaths_data, county_state)
 
     col_1.plotly_chart(fig, use_container_width=True, theme=None, height=100)
     table = data.sort_values('Fatality Rate', ascending=0).drop(columns=['Lat', 'Long_', 'County, State'])
     table = table.rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
     col_2.write('#### US Counties')
     col_2.dataframe(table, use_container_width=True, hide_index=True, height=400)
-    # col_3.plotly_chart(fig_ts, use_container_width=True)
+    col_3.plotly_chart(fig_ts, use_container_width=True)
 
 
 
