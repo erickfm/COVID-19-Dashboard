@@ -37,7 +37,7 @@ if main_page:
     table = table.rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
     col_2.write('#### US Counties')
     col_2.dataframe(table, use_container_width=True, hide_index=True, height=400)
-    # col_3.plotly_chart(fig_ts, use_container_width=True)
+    col_3.plotly_chart(fig_ts, use_container_width=True)
 
 
 
