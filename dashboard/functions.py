@@ -35,9 +35,9 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
 
     # Rename the columns
     if agg_option == "Cumulative":
-        la_data.columns = ['ds', 'y', 'y_daily', 'y_avg']
+        la_data.columns = ['ds', 'y', 'y_daily']
     if agg_option == "Daily":
-        la_data.columns = ['ds', 'y_cum', 'y', 'y_avg']
+        la_data.columns = ['ds', 'y_cum', 'y']
     if agg_option == "Daily Rolling Average":
         la_data['moving_average'] = la_data['Daily Count'].rolling(window=avg_window).mean()
         la_data.columns = ['ds', 'y_cum', 'y_daily', 'y']
