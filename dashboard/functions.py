@@ -145,7 +145,7 @@ def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color
         hover_data=["Confirmed Cases", "Deaths", "Fatality Rate"],
         zoom=3.5,
         title=f"COVID-19 Dashboard as of {recent_date}",
-        height=850,
+        height=1850,
     )
 
     fig.update_layout(mapbox_style="open-street-map")
