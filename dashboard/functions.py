@@ -8,7 +8,12 @@ from prophet.plot import plot_plotly, plot_components_plotly
 import plotly.graph_objects as go
 
 
-def get_time_series(confirmed_cases_data, deaths_data, county):
+def get_time_series(confirmed_cases_data, deaths_data, county_state):
+    county_dict = {k: v for k, v in
+                   zip(list(confirmed_cases_data['Admin2'] + ', ' + confirmed_cases_data['Province_State']),
+                       list(confirmed_cases_data['Admin2']))}
+    county = county_dict[county_state]
+
     # Set days to predict
     test_days = 60
     forward_days = 30
@@ -21,7 +26,9 @@ def get_time_series(confirmed_cases_data, deaths_data, county):
     df_la = df[df['Admin2'] == county]
 
     # Drop the non-date columns
-    df_la = df_la.drop(columns=['UID', 'iso2', 'iso3', 'code3', 'FIPS', 'Admin2', 'Province_State', 'Country_Region', 'Lat', 'Long_', 'Combined_Key'])
+    df_la = df_la.drop(
+        columns=['UID', 'iso2', 'iso3', 'code3', 'FIPS', 'Admin2', 'Province_State', 'Country_Region', 'Lat', 'Long_',
+                 'Combined_Key'])
 
     # Convert the data from wide to long format
     df_la_long = df_la.melt(var_name='Date', value_name='Cumulative Count')
@@ -37,16 +44,11 @@ def get_time_series(confirmed_cases_data, deaths_data, county):
 
     la_data = df_la_long.copy()
 
-
-
     # Sort the data by date
     la_data = la_data.sort_values('Date')
 
     # Calculate the moving average
     la_data['moving_average'] = la_data['Daily Count'].rolling(window=avg_window).mean()
-
-
-
 
     # Rename the columns
     # Cumulative
@@ -70,7 +72,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county):
     model.fit(train)
 
     # Define a dataframe to hold the dates for which we want to make predictions
-    future = model.make_future_dataframe(periods=test_days+forward_days)
+    future = model.make_future_dataframe(periods=test_days + forward_days)
     future['floor'] = 0
 
     # Use the model to make predictions
@@ -84,21 +86,23 @@ def get_time_series(confirmed_cases_data, deaths_data, county):
 
     # Add the scatter plot for actual counts
     fig.add_trace(go.Scatter(x=test['ds'], y=test['y'], mode='markers', name='Actual ',
-                  marker=dict(color='red', size=4)))
+                             marker=dict(color='red', size=4)))
 
-    # # Customize the layout
-    # fig.update_layout(
-    #     title='Forecast and Actual Counts for Los Angeles',
-    #     xaxis_title='Date',
-    #     yaxis_title='Counts',
-    #     showlegend=True,
-    #     legend=dict(x=0, y=1),
-    #     width=800,
-    #     height=500
-    # )
+    # Customize the layout
+    fig.update_layout(
+        title=f'Forecast and Actual Counts for {county_state}',
+        xaxis_title='Date',
+        yaxis_title='Counts',
+        showlegend=True,
+        legend=dict(x=0, y=1),
+        width=800,
+        height=500,
+        margin={"r": 0, "t": 0, "l": 0, "b": 0}
+    )
 
     # Reorder the traces
     fig.data = tuple([fig.data[0], fig.data[4], fig.data[1], fig.data[2], fig.data[3]])
+    fig.update_layout()
 
     return fig
 
