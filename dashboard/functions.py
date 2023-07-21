@@ -97,7 +97,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state):
         legend=dict(x=0, y=1),
         width=800,
         height=500,
-        margin={"r": 0, "t": 0, "l": 0, "b": 0}
+        margin={"r": 0, "t": 20, "l": 0, "b": 0}
     )
 
     # Reorder the traces
