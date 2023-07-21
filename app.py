@@ -34,7 +34,7 @@ if main_page:
 
     predictive_analytics = col_4.checkbox('Predictive Analytics')
     if predictive_analytics:
-        forward_days = col_4.slider('Forecast Length', 0, None, 14)
+        forward_days = col_4.slider('Forecast Length', 0, None, 1095)
         test_days = col_4.slider('Test Length', 0, 1095, 0)
     else:
         forward_days = None
