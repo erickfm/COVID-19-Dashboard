@@ -104,7 +104,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
     return fig
 
 
-def get_mapbox(confirmed_cases_data, deaths_data):
+def get_mapbox(confirmed_cases_data, deaths_data, size, color):
     # Take the most recent date from the datasets
     recent_date = confirmed_cases_data.columns[-1]
 
@@ -128,10 +128,10 @@ def get_mapbox(confirmed_cases_data, deaths_data):
         data,
         lat="Lat",
         lon="Long_",
-        color="Fatality Rate",
-        size="Deaths",
+        color=color,
+        size=size,
         hover_name="County, State",
-        # hover_data=["Confirmed Cases", "Deaths"],
+        hover_data=["Confirmed Cases", "Deaths", "Fatality Rate"],
         zoom=3.5,
         title=f"COVID-19 Dashboard as of {recent_date}"
     )

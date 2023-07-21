@@ -1,2 +1,2 @@
 # COVID
-Plotly-based Streamlit dashboard using [CSSE COVID-19 data](https://github.com/CSSEGISandData/COVID-19)
+Plotly-based Streamlit dashboard using [CSSE COVID-19 data](https://github.com/CSSEGISandData/COVID-19) and [Census data aggregated by the CORGIS Dataset Project](https://corgis-edu.github.io/corgis/csv/county_demographics/)

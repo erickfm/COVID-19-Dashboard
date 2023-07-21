@@ -23,9 +23,11 @@ if main_page:
 
     st.write('## COVID-19 Dashboard')
     col_1, col_2 = st.columns([23, 10])
+    col_1a, col_1b = col_1.columns([1, 1])
     col_3, col_4 = st.columns([35, 10])
-
-    county_state = col_4.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'])
+    size = col_1a.selectbox('size', ['Fatality Rate', 'Deaths'], index=1)
+    color = col_1b.selectbox('color', ['Fatality Rate', 'Deaths'], index=0)
+    county_state = col_4.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'], index=234)
     agg_option = col_4.selectbox('Aggregation Options', ['Cumulative', 'Daily', 'Daily Rolling Average'])
     if agg_option == 'Daily Rolling Average':
         avg_window = col_4.slider('Average Window', 2, 30, value=7)
@@ -40,7 +42,7 @@ if main_page:
         forward_days = None
         test_days = None
 
-    fig, data = get_mapbox(confirmed_cases_data, deaths_data)
+    fig, data = get_mapbox(confirmed_cases_data, deaths_data, size, color)
     fig_ts = get_time_series(confirmed_cases_data,
                              deaths_data,
                              county_state,
@@ -49,14 +51,12 @@ if main_page:
                              agg_option,
                              avg_window,
                              predictive_analytics)
-
     col_1.plotly_chart(fig, use_container_width=True, theme=None, height=100)
     table = data.sort_values('Fatality Rate', ascending=0).drop(columns=['Lat', 'Long_', 'County, State'])
     table = table.rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
     col_2.write('##### US Counties')
     col_2.dataframe(table, use_container_width=True, hide_index=True, height=400)
     col_3.plotly_chart(fig_ts, use_container_width=True)
-
 
 
 
