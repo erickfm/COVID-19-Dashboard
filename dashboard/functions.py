@@ -47,14 +47,21 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
 
     if predictive_analytics:
         # Split the data into a training set and a test set
-        train = la_data[:-test_days]
-        test = la_data[-test_days:]
+        if test_days:
+            train = la_data[:-test_days]
+            test = la_data[-test_days:]
+        else:
+            train = la_data
+            test = []
 
         # Define the model
         model = Prophet()
 
         # Fit the model to the training data
-        model.fit(train)
+        try:
+            model.fit(train)
+        except:
+            st.write()
 
         # Define a dataframe to hold the dates for which we want to make predictions
         future = model.make_future_dataframe(periods=test_days + forward_days)
@@ -84,6 +91,14 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
         )
         # Reorder the traces
         fig.data = tuple([fig.data[0], fig.data[4], fig.data[1], fig.data[2], fig.data[3]])
+    else:
+        # Create a time series plot
+        fig = go.Figure(data=go.Scatter(x=df_la_long['Date'], y=df_la_long['Cumulative Count']))
+
+        # Add title and labels
+        fig.update_layout(title='Daily COVID-19 Cases in Los Angeles',
+                          xaxis_title='Date',
+                          yaxis_title='Number of Cases')
 
     return fig
 
