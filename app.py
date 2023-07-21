@@ -26,15 +26,37 @@ if main_page:
     col_3, col_4 = st.columns([35, 10])
 
     county_state = col_4.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'])
+    col_4.slider()
+    agg_option = col_4.selectbox('Aggregation Options', ['Cumulative', 'Daily', 'Daily Rolling Average'])
+    if agg_option == 'Daily Rolling Average':
+        avg_window = col_4.slider('Average Window', 2, 30, value=7)
+    else:
+        avg_window = None
+
+    predictive_analytics = col_4.checkbox('Predictive Analytics')
+    if predictive_analytics:
+        forward_days = col_4.slider('Forecast Length', 0, None, 14)
+        test_days = col_4.slider('Test Length', 0, 1095, 0)
+    else:
+        forward_days = None
+        test_days = None
+
     fig, data = get_mapbox(confirmed_cases_data, deaths_data)
-    fig_ts = get_time_series(confirmed_cases_data, deaths_data, county_state)
+    fig_ts = get_time_series(confirmed_cases_data,
+                             deaths_data,
+                             county_state,
+                             test_days,
+                             forward_days,
+                             agg_option,
+                             avg_window,
+                             predictive_analytics)
 
     col_1.plotly_chart(fig, use_container_width=True, theme=None, height=100)
     table = data.sort_values('Fatality Rate', ascending=0).drop(columns=['Lat', 'Long_', 'County, State'])
     table = table.rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
-    col_2.write('#### US Counties')
+    col_2.write('##### US Counties')
     col_2.dataframe(table, use_container_width=True, hide_index=True, height=400)
-    col_3.plotly_chart(fig_ts, use_container_width=True)
+    # col_3.plotly_chart(fig_ts, use_container_width=True)
 
 
 
