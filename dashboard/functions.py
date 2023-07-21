@@ -91,7 +91,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state):
     # Customize the layout
     fig.update_layout(
         title=f'Forecast and Actual Counts for {county_state}',
-        title_x=0.5,
+        title_x=0.4,
         xaxis_title='Date',
         yaxis_title='Counts',
         showlegend=True,
