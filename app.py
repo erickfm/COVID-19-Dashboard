@@ -44,7 +44,6 @@ if main_page:
         test_days = None
 
     fig, data = get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color)
-    st.write(data)
     fig_ts = get_time_series(confirmed_cases_data,
                              deaths_data,
                              county_state,

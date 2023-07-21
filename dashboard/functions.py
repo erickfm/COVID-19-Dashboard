@@ -58,10 +58,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
         model = Prophet()
 
         # Fit the model to the training data
-        try:
-            model.fit(train)
-        except:
-            st.write()
+        model.fit(train)
 
         # Define a dataframe to hold the dates for which we want to make predictions
         future = model.make_future_dataframe(periods=test_days + forward_days)
@@ -118,24 +115,14 @@ def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color
     data["Fatality Rate"] = fatality_rate
     data["County, State"] = data["Admin2"] + ', ' + data['Province_State']
 
-    # Append Demographics data
+    # Clean Demographics data
     demographics_data = demographics_data[['Age.Percent 65 and Older',
                                            'Income.Median Houseold Income',
                                            'Population.Population per Square Mile',
                                            'County',
                                            'State']]
     demographics_data['County, State'] = demographics_data['County'] + ', ' + demographics_data['State']
-    st.write(demographics_data)
-    st.stop()
-    data = pd.merge(data, demographics_data[['Age.Percent 65 and Older',
-                                             'Income.Median Houseold Income',
-                                             'Population.Population per Square Mile',
-                                             'County',
-                                             'State',
-                                             'County, State']], on='County, State')
-
-    st.write(data)
-    st.stop()
+    data = pd.merge(data, demographics_data, on='County, State')
 
     # Some Data Cleaning
     data = data[data["Confirmed Cases"] > 0]
