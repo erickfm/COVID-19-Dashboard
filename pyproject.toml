@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "covid-19-dashboard"
+name = "COVID"
 version = "0.1.0"
 description = ""
 authors = ["Erick <efm.physics@gmail.com>"]
 readme = "README.md"
-packages = [{include = "covid_19_dashboard"}]
+packages = [{include = "dashboard"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.9.7 || >3.9.7,<4.0"
