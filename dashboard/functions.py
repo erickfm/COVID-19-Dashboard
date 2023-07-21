@@ -82,7 +82,6 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
             height=500,
             margin={"r": 0, "t": 0, "l": 0, "b": 0}
         )
-
         # Reorder the traces
         fig.data = tuple([fig.data[0], fig.data[4], fig.data[1], fig.data[2], fig.data[3]])
 

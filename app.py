@@ -26,7 +26,6 @@ if main_page:
     col_3, col_4 = st.columns([35, 10])
 
     county_state = col_4.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'])
-    col_4.slider()
     agg_option = col_4.selectbox('Aggregation Options', ['Cumulative', 'Daily', 'Daily Rolling Average'])
     if agg_option == 'Daily Rolling Average':
         avg_window = col_4.slider('Average Window', 2, 30, value=7)
@@ -56,7 +55,7 @@ if main_page:
     table = table.rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
     col_2.write('##### US Counties')
     col_2.dataframe(table, use_container_width=True, hide_index=True, height=400)
-    # col_3.plotly_chart(fig_ts, use_container_width=True)
+    col_3.plotly_chart(fig_ts, use_container_width=True)
 
 
 
