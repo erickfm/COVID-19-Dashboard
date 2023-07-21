@@ -2,15 +2,13 @@ import streamlit as st
 import os
 import time
 import plotly.express as px
-
-
 import pandas as pd
 from prophet import Prophet
 from prophet.plot import plot_plotly, plot_components_plotly
 import plotly.graph_objects as go
 
 
-def get_time_series(confirmed_cases_data, deaths_data):
+def get_time_series(confirmed_cases_data, deaths_data, county):
     # Set days to predict
     test_days = 60
     forward_days = 30
@@ -20,7 +18,7 @@ def get_time_series(confirmed_cases_data, deaths_data):
     df = confirmed_cases_data
 
     # Filter the data for Los Angeles
-    df_la = df[df['Admin2'] == 'New York']
+    df_la = df[df['Admin2'] == county]
 
     # Drop the non-date columns
     df_la = df_la.drop(columns=['UID', 'iso2', 'iso3', 'code3', 'FIPS', 'Admin2', 'Province_State', 'Country_Region', 'Lat', 'Long_', 'Combined_Key'])
@@ -100,7 +98,7 @@ def get_time_series(confirmed_cases_data, deaths_data):
     # )
 
     # Reorder the traces
-    fig.data = tuple([fig.data[0],fig.data[4],fig.data[1],fig.data[2],fig.data[3]])
+    fig.data = tuple([fig.data[0], fig.data[4], fig.data[1], fig.data[2], fig.data[3]])
 
     return fig
 
