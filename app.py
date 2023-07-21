@@ -34,10 +34,6 @@ if main_page:
     county_state = col_2a.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'], index=234)
     agg_option = col_2b.selectbox('Aggregation Options', ['Cumulative', 'Daily', 'Daily Rolling Average'])
     col_2c.write('#')
-    if agg_option == 'Daily Rolling Average':
-        avg_window = col_2bottom.slider('Average Window', 2, 30, value=7)
-    else:
-        avg_window = None
 
     predictive_analytics = col_2c.checkbox('Predictive Analytics')
     if predictive_analytics:
@@ -46,6 +42,11 @@ if main_page:
     else:
         forward_days = None
         test_days = None
+
+    if agg_option == 'Daily Rolling Average':
+        avg_window = col_2bottom.slider('Average Window', 2, 30, value=7)
+    else:
+        avg_window = None
 
     fig, data = get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color)
     fig_ts = get_time_series(confirmed_cases_data,
