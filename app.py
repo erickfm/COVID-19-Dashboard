@@ -23,7 +23,7 @@ if main_page:
 
     st.write('## COVID-19 Dashboard')
     col_1, col_2 = st.columns([23, 10])
-    col_3, col_4 = st.columns([23, 10])
+    col_3, col_4 = st.columns([35, 10])
 
     county_state = col_4.selectbox('County', confirmed_cases_data['Admin2']+', '+confirmed_cases_data['Province_State'])
     county_dict = {k: v for k, v in zip(list(confirmed_cases_data['Admin2'] + ', ' + confirmed_cases_data['Province_State']),list(confirmed_cases_data['Admin2']))}
@@ -32,7 +32,7 @@ if main_page:
     fig, data = get_mapbox(confirmed_cases_data, deaths_data)
     fig_ts = get_time_series(confirmed_cases_data, deaths_data, county)
 
-    col_1.plotly_chart(fig, use_container_width=True, theme=None)
+    col_1.plotly_chart(fig, use_container_width=True, theme=None, height=100)
     table = data.sort_values('Fatality Rate', ascending=0).drop(columns=['Lat', 'Long_', 'County, State'])
     table = table.rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
     col_2.write('#### US Counties')

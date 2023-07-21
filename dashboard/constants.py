@@ -2,8 +2,10 @@ github_image_path = 'https://raw.githubusercontent.com/erickfm/Assets/main/image
 margins_css = """
     <style>
         .main > div {
-            padding-top: 10px;
-            padding-bottom: 10px;
+            padding-top: 5px;
+            padding-left: 40px;
+            padding-right: 40px;
+            padding-bottom: 5px;
         }
     </style>
 """
