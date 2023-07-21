@@ -72,7 +72,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
         # Create the figure
         fig = plot_plotly(model, forecast)
 
-        if test_days > 0:
+        if test_days:
             # Add the scatter plot for actual counts
             fig.add_trace(go.Scatter(x=test['ds'], y=test['y'], mode='markers', name='Actual ',
                                      marker=dict(color='red', size=4)))
@@ -89,8 +89,9 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
             height=500,
             margin={"r": 0, "t": 0, "l": 0, "b": 0}
         )
-        # Reorder the traces
-        fig.data = tuple([fig.data[0], fig.data[4], fig.data[1], fig.data[2], fig.data[3]])
+        if test_days:
+            # Reorder the traces
+            fig.data = tuple([fig.data[0], fig.data[4], fig.data[1], fig.data[2], fig.data[3]])
     else:
         # Create a time series plot
         fig = go.Figure(data=go.Scatter(x=df_la_long['Date'], y=df_la_long['Cumulative Count']))
