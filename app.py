@@ -15,8 +15,8 @@ with st.sidebar:
 
 if main_page:
     # Load data
-    confirmed_cases_data = pd.read_csv('Data/time_series_covid19_confirmed_US.csv')
-    deaths_data = pd.read_csv('Data/time_series_covid19_deaths_US.csv')
+    confirmed_cases_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/time_series_covid19_confirmed_US.csv)
+    deaths_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/time_series_covid19_deaths_US.csv')
     fig, data = get_mapbox(confirmed_cases_data, deaths_data)
     fig_ts = get_time_series(confirmed_cases_data, deaths_data)
 
