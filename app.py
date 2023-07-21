@@ -27,7 +27,7 @@ if main_page:
     col_1a, col_1b = col_1.columns([1, 1])
 
     col_2top = col_2.container()
-    col_2a, col_2b, col_2c, col_2d = col_2.columns([15, 10, 10, 10])
+    col_2a, col_2b, col_2c, col_2d = col_2.columns([15, 15, 10, 8])
     col_2bottom = col_2.container()
     size = col_1a.selectbox('size', ['Fatality Rate', 'Deaths', 'Confirmed Cases'], index=1)
     color = col_1b.selectbox('color', ['Fatality Rate', 'Deaths', 'Confirmed Cases'], index=0)
@@ -69,7 +69,10 @@ if main_page:
         else:
             table_height = 100
     else:
-        table_height = 400
+        if avg_window:
+            table_height = 285
+        else:
+            table_height = 400
     col_2top.dataframe(table, use_container_width=True, hide_index=True, height=table_height)
     col_2bottom.plotly_chart(fig_ts, use_container_width=True)
 
