@@ -94,7 +94,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
             fig.data = tuple([fig.data[0], fig.data[4], fig.data[1], fig.data[2], fig.data[3]])
     else:
         # Create a time series plot
-        fig = go.Figure(data=go.Scatter(x=df_la_long['Date'], y=df_la_long['Cumulative Count']))
+        fig = go.Figure(data=go.Scatter(x=la_data['ds'], y=df_la_long['y']))
 
         # Add title and labels
         fig.update_layout(title='Daily COVID-19 Cases in Los Angeles',
