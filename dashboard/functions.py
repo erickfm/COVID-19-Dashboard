@@ -32,8 +32,6 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
     la_data = df_la_long.copy()
     # Sort the data by date
     la_data = la_data.sort_values('Date')
-    # Calculate the moving average
-    la_data['moving_average'] = la_data['Daily Count'].rolling(window=avg_window).mean()
 
     # Rename the columns
     if agg_option == "Cumulative":
@@ -41,6 +39,7 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
     if agg_option == "Daily":
         la_data.columns = ['ds', 'y_cum', 'y', 'y_avg']
     if agg_option == "Daily Rolling Average":
+        la_data['moving_average'] = la_data['Daily Count'].rolling(window=avg_window).mean()
         la_data.columns = ['ds', 'y_cum', 'y_daily', 'y']
 
     # Convert the 'ds' column to datetime format
