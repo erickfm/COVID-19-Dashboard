@@ -83,5 +83,5 @@ if about_page:
         "Plotly-based Streamlit dashboard using CSSE COVID-19 data and Census data aggregated by the CORGIS Dataset Project\n\n"
         "Built by [Erick Martinez](https://github.com/erickfm)."
         "")
-    st.markdown(f"""<div><a href="https://github.com/erickfm/Dewey"><img src="{github_image_path}" style="padding-right: 10px;" width="6%" height="6%"></a>""",
+    st.markdown(f"""<div><a href="https://github.com/erickfm/COVID"><img src="{github_image_path}" style="padding-right: 10px;" width="6%" height="6%"></a>""",
                 unsafe_allow_html=1)
