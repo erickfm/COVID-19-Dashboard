@@ -20,9 +20,10 @@ if main_page:
     # Load data
     confirmed_cases_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/time_series_covid19_confirmed_US.csv')
     deaths_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/time_series_covid19_deaths_US.csv')
+    demographics_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/county_demographics.csv')
 
     st.write('## COVID-19 Dashboard')
-    col_1, col_2 = st.columns([23, 10])
+    col_1, col_2 = st.columns([35, 10])
     col_1a, col_1b = col_1.columns([1, 1])
     col_3, col_4 = st.columns([35, 10])
     size = col_1a.selectbox('size', ['Fatality Rate', 'Deaths'], index=1)
@@ -42,7 +43,8 @@ if main_page:
         forward_days = None
         test_days = None
 
-    fig, data = get_mapbox(confirmed_cases_data, deaths_data, size, color)
+    fig, data = get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color)
+    st.write(data)
     fig_ts = get_time_series(confirmed_cases_data,
                              deaths_data,
                              county_state,
@@ -53,9 +55,9 @@ if main_page:
                              predictive_analytics)
     col_1.plotly_chart(fig, use_container_width=True, theme=None, height=100)
     table = data.sort_values('Fatality Rate', ascending=0).drop(columns=['Lat', 'Long_', 'County, State'])
-    table = table.rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
+    table = table.drop(columns=['County', 'State']).rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
     col_2.write('##### US Counties')
-    col_2.dataframe(table, use_container_width=True, hide_index=True, height=400)
+    col_2.dataframe(table, use_container_width=True, hide_index=True, height=500)
     col_3.plotly_chart(fig_ts, use_container_width=True)
 
 

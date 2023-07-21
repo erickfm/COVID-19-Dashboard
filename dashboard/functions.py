@@ -97,14 +97,14 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
         fig = go.Figure(data=go.Scatter(x=la_data['ds'], y=la_data['y']))
 
         # Add title and labels
-        fig.update_layout(title='Daily COVID-19 Cases in Los Angeles',
+        fig.update_layout(title=f'COVID-19 Cases in {county_state}',
                           xaxis_title='Date',
                           yaxis_title='Number of Cases')
 
     return fig
 
 
-def get_mapbox(confirmed_cases_data, deaths_data, size, color):
+def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color):
     # Take the most recent date from the datasets
     recent_date = confirmed_cases_data.columns[-1]
 
@@ -117,6 +117,25 @@ def get_mapbox(confirmed_cases_data, deaths_data, size, color):
     data["Deaths"] = deaths_data[recent_date]
     data["Fatality Rate"] = fatality_rate
     data["County, State"] = data["Admin2"] + ', ' + data['Province_State']
+
+    # Append Demographics data
+    demographics_data = demographics_data[['Age.Percent 65 and Older',
+                                           'Income.Median Houseold Income',
+                                           'Population.Population per Square Mile',
+                                           'County',
+                                           'State']]
+    demographics_data['County, State'] = demographics_data['County'] + ', ' + demographics_data['State']
+    st.write(demographics_data)
+    st.stop()
+    data = pd.merge(data, demographics_data[['Age.Percent 65 and Older',
+                                             'Income.Median Houseold Income',
+                                             'Population.Population per Square Mile',
+                                             'County',
+                                             'State',
+                                             'County, State']], on='County, State')
+
+    st.write(data)
+    st.stop()
 
     # Some Data Cleaning
     data = data[data["Confirmed Cases"] > 0]
