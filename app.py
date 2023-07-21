@@ -56,12 +56,12 @@ if main_page:
                              agg_option,
                              avg_window,
                              predictive_analytics)
-    col_1.plotly_chart(fig, use_container_width=True, theme=None, height=100)
+    col_1.plotly_chart(fig, use_container_width=True, theme=None)
     table = data.sort_values('Fatality Rate', ascending=0).drop(columns=['Lat', 'Long_', 'County, State'])
     table = table.drop(columns=['County', 'State']).rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
     col_2top.write('##### US Counties')
     if predictive_analytics:
-        table_height = 200
+        table_height = 150
     else:
         table_height = 400
     col_2top.dataframe(table, use_container_width=True, hide_index=True, height=table_height)
