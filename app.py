@@ -64,7 +64,10 @@ if main_page:
     table = table.drop(columns=['County', 'State']).rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
     col_2top.write('##### US Counties')
     if predictive_analytics:
-        table_height = 100
+        if avg_window:
+            table_height = 50
+        else:
+            table_height = 100
     else:
         table_height = 400
     col_2top.dataframe(table, use_container_width=True, hide_index=True, height=table_height)
