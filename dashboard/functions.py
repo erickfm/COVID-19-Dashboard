@@ -131,7 +131,7 @@ def get_mapbox(confirmed_cases_data, deaths_data):
         size="Deaths",
         hover_name="County, State",
         # hover_data=["Confirmed Cases", "Deaths"],
-        zoom=3,
+        zoom=3.5,
         title=f"COVID-19 Dashboard as of {recent_date}"
     )
 
