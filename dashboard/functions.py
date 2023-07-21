@@ -65,9 +65,10 @@ def get_time_series(confirmed_cases_data, deaths_data, county_state, test_days, 
         # Create the figure
         fig = plot_plotly(model, forecast)
 
-        # Add the scatter plot for actual counts
-        fig.add_trace(go.Scatter(x=test['ds'], y=test['y'], mode='markers', name='Actual ',
-                                 marker=dict(color='red', size=4)))
+        if test_days > 0:
+            # Add the scatter plot for actual counts
+            fig.add_trace(go.Scatter(x=test['ds'], y=test['y'], mode='markers', name='Actual ',
+                                     marker=dict(color='red', size=4)))
 
         # Customize the layout
         fig.update_layout(
