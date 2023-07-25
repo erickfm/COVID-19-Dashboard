@@ -1,14 +1,13 @@
 import streamlit as st
 import pandas as pd
 from dashboard.constants import github_image_path
-import os
+from streamlit_plotly_events import plotly_events
 
 from dashboard.functions import get_mapbox, get_time_series, get_3D_scatter
 from dashboard.constants import margins_css
 
 st.set_page_config(page_title='COVID-19 Dashboard', page_icon="🌎", layout="wide", initial_sidebar_state='collapsed')
 st.markdown(margins_css, unsafe_allow_html=True)
-
 
 with st.sidebar:
     main_page = st.button('COVID-19 Dashboard', use_container_width=1)
@@ -18,8 +17,10 @@ with st.sidebar:
 
 if main_page:
     # Load data
-    confirmed_cases_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/time_series_covid19_confirmed_US.csv')
-    deaths_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/time_series_covid19_deaths_US.csv')
+    confirmed_cases_data = pd.read_csv(
+        'https://raw.githubusercontent.com/erickfm/COVID/main/data/time_series_covid19_confirmed_US.csv')
+    deaths_data = pd.read_csv(
+        'https://raw.githubusercontent.com/erickfm/COVID/main/data/time_series_covid19_deaths_US.csv')
     demographics_data = pd.read_csv('https://raw.githubusercontent.com/erickfm/COVID/main/data/county_demographics.csv')
 
     st.write('## COVID-19 Dashboard')
@@ -31,7 +32,6 @@ if main_page:
     col_2bottom = col_2.container()
     size = col_1a.selectbox('size', ['Fatality Rate', 'Deaths', 'Confirmed Cases', 'Daily Fatality Rate'], index=1)
     color = col_1b.selectbox('color', ['Fatality Rate', 'Deaths', 'Confirmed Cases', 'Daily Fatality Rate'], index=0)
-    county_state = col_2a.selectbox('County', confirmed_cases_data['Admin2'] + ', ' + confirmed_cases_data['Province_State'], index=234)
     dataset = col_2c.selectbox('Dataset', ['Deaths', 'Cases'], index=1)
     agg_option = col_2b.selectbox('Aggregation', ['Cumulative', 'Daily', 'Daily Rolling Average'])
     col_2d.write('#')
@@ -50,18 +50,15 @@ if main_page:
         avg_window = None
 
     fig, data = get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color)
-    fig_ts = get_time_series(confirmed_cases_data,
-                             deaths_data,
-                             dataset,
-                             county_state,
-                             test_days,
-                             forward_days,
-                             agg_option,
-                             avg_window,
-                             predictive_analytics)
-    col_1.plotly_chart(fig, use_container_width=True, theme=None)
-    table = data.sort_values('Fatality Rate', ascending=0).drop(columns=['Lat', 'Long_', 'County, State'])
-    table = table.drop(columns=['County', 'State']).rename(columns={'Admin2': 'County', 'Province_State':'State', 'Confirmed Cases': 'Cases'})
+
+    table = data.drop(columns=['Lat', 'Long_', 'County, State', 'Daily Fatality Rate', 'Daily Deaths'])
+    table = table.drop(columns=['County', 'State']).rename(
+        columns={'Admin2': 'County', 'Province_State': 'State', 'Confirmed Cases': 'Cases'})
+    with col_1:
+        selected_points_map = plotly_events(fig, )  # use_container_width=True, theme=None)
+        if selected_points_map:
+            row_index = selected_points_map[0]["pointIndex"]
+            table = table[row_index:row_index + 1]
     col_2top.write('##### US Counties')
     if predictive_analytics:
         if avg_window:
@@ -73,11 +70,41 @@ if main_page:
             table_height = 285
         else:
             table_height = 400
-    col_2top.dataframe(table, use_container_width=True, hide_index=True, height=table_height)
-    col_2bottom.plotly_chart(fig_ts, use_container_width=True)
+
     fig_scatter = get_3D_scatter(data)
     st.write('### Fatality Rate Correlations')
-    st.plotly_chart(fig_scatter, use_container_width=True)
+    selected_points_scatter = plotly_events(fig_scatter)
+    if selected_points_scatter:
+        row_index = selected_points_scatter[0]["pointNumber"]
+    if selected_points_map or selected_points_scatter:
+        if selected_points_map:
+            row_index = selected_points_map[0]["pointIndex"]
+        else:
+            row_index = selected_points_scatter[0]["pointNumber"]
+            c = data[row_index:row_index + 1]['County'].iloc[0].strip()
+            s = data[row_index:row_index + 1]['State'].iloc[0].strip()
+            table = table[(table['County'].str.contains(c)) & (table['State'].str.contains(s))]
+        county_state = col_2a.selectbox('County',
+                                        table['County'] + ', ' + table['State'])
+    else:
+        county_state = col_2a.selectbox('County',
+                                        confirmed_cases_data['Admin2'] + ', ' + confirmed_cases_data['Province_State'],
+                                        index=234)
+    fig_ts = get_time_series(confirmed_cases_data,
+                             deaths_data,
+                             dataset,
+                             county_state,
+                             test_days,
+                             forward_days,
+                             agg_option,
+                             avg_window,
+                             predictive_analytics)
+    col_2bottom.plotly_chart(fig_ts, use_container_width=True, theme=None)
+    col_2top.dataframe(table, use_container_width=True, hide_index=True, height=table_height)
+    # st.write('#')
+    # with st.expander(''):
+    #     selected_points_scatter_null = plotly_events(fig_scatter, key='null')
+
 
 
 if about_page:
@@ -87,5 +114,6 @@ if about_page:
         "Inspiration from [CSSE COVID-19 Dashboard](https://www.arcgis.com/apps/dashboards/bda7594740fd40299423467b48e9ecf6)\n\n"
         "Built by [Erick Martinez](https://github.com/erickfm)."
         "")
-    st.markdown(f"""<div><a href="https://github.com/erickfm/COVID"><img src="{github_image_path}" style="padding-right: 10px;" width="6%" height="6%"></a>""",
-                unsafe_allow_html=1)
+    st.markdown(
+        f"""<div><a href="https://github.com/erickfm/COVID"><img src="{github_image_path}" style="padding-right: 10px;" width="6%" height="6%"></a>""",
+        unsafe_allow_html=1)

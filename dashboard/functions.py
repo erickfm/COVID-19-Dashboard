@@ -37,12 +37,43 @@ def get_time_series(confirmed_cases_data, deaths_data, dataset, county_state, te
     df_la_long = df_la.melt(var_name='Date', value_name='Cumulative Count')
     # Convert the 'Date' column to datetime format
     df_la_long['Date'] = pd.to_datetime(df_la_long['Date'])
-    # Calculate the daily counts
-    df_la_long['Daily Count'] = df_la_long['Cumulative Count'].diff()
-    # If the first row is NaN due to the diff() operation, remove it
     la_data = df_la_long.copy()
     # Sort the data by date
     la_data = la_data.sort_values('Date')
+
+    df = la_data.copy()
+
+    # Fix Faulty Cumulative Counts
+    # Create new column for corrected counts
+    df['corrected_counts'] = df['Cumulative Count']
+
+    # Loop through the rows
+    for i in range(1, len(df) - 1):
+        # If count drops, replace with previous
+        if df.iloc[i, df.columns.get_loc('corrected_counts')] < df.iloc[i - 1, df.columns.get_loc('corrected_counts')]:
+            df.iloc[i, df.columns.get_loc('corrected_counts')] = df.iloc[i - 1, df.columns.get_loc('corrected_counts')]
+
+        # # If count is larger than average of its neighbours, replace with average
+        # elif df.iloc[i, df.columns.get_loc('corrected_counts')] > (
+        #         df.iloc[i - 1, df.columns.get_loc('corrected_counts')] + df.iloc[
+        #     i + 1, df.columns.get_loc('corrected_counts')]) / 2:
+        #     df.iloc[i, df.columns.get_loc('corrected_counts')] = (df.iloc[
+        #                                                               i - 1, df.columns.get_loc('corrected_counts')] +
+        #                                                           df.iloc[i + 1, df.columns.get_loc(
+        #                                                               'corrected_counts')]) / 2
+
+    # Special case for first row
+    if df.iloc[0, df.columns.get_loc('corrected_counts')] > df.iloc[1, df.columns.get_loc('corrected_counts')]:
+        df.iloc[0, df.columns.get_loc('corrected_counts')] = df.iloc[1, df.columns.get_loc('corrected_counts')]
+
+    df['Cumulative Count'] = df['corrected_counts']
+    la_data = df.drop(columns=['corrected_counts'])
+
+    # Calculate the daily counts
+    la_data['Daily Count'] = la_data['Cumulative Count'].diff()
+    la_data = la_data[:-1]
+    st.write(la_data)
+
 
     # Rename the columns
     if agg_option == "Cumulative":
@@ -166,6 +197,7 @@ def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color
             zoom=3.5,
             title=f"COVID-19 Dashboard as of {recent_date}",
             height=880,
+            color_continuous_scale=px.colors.sequential.Plasma_r,
         )
 
         fig.update_layout(mapbox_style="open-street-map")
@@ -203,7 +235,7 @@ def get_3D_scatter(data):
                         color='Fatality Rate',
                         size='Fatality Rate',
                         hover_name='County, State',
-                        color_continuous_scale=px.colors.sequential.Plasma,
+                        color_continuous_scale=px.colors.sequential.Plasma_r,
                         log_x=True)
 
     # Update layout
@@ -213,6 +245,6 @@ def get_3D_scatter(data):
                           yaxis_title='Percent 65+',
                           zaxis_title='Median Income'),
                       autosize=False,
-                      width=1000, height=920)
+                      width=1780, height=900)
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
