@@ -72,7 +72,6 @@ def get_time_series(confirmed_cases_data, deaths_data, dataset, county_state, te
     # Calculate the daily counts
     la_data['Daily Count'] = la_data['Cumulative Count'].diff()
     la_data = la_data[:-1]
-    st.write(la_data)
 
 
     # Rename the columns
