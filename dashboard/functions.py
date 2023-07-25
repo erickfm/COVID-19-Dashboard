@@ -195,7 +195,7 @@ def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color
             hover_data=["Confirmed Cases", "Deaths", "Fatality Rate"],
             zoom=3.5,
             title=f"COVID-19 Dashboard as of {recent_date}",
-            height=880,
+            height=780,
             color_continuous_scale=px.colors.sequential.Plasma_r,
         )
 

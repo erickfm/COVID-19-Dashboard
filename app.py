@@ -59,6 +59,10 @@ if main_page:
         if selected_points_map:
             row_index = selected_points_map[0]["pointIndex"]
             table = table[row_index:row_index + 1]
+    col_1_alpha, col_1_beta, dummy_col = col_1.columns([10, 10, 2])
+    col_1_alpha.info(f'### Average Fatality Rate: {round(data["Fatality Rate"].mean(), 3)}')
+    col_1_beta.info(f'### Median Fatality Rate: {round(data["Fatality Rate"].median(), 3)}')
+
     col_2top.write('##### US Counties')
     if predictive_analytics:
         if avg_window:
