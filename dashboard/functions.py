@@ -37,12 +37,42 @@ def get_time_series(confirmed_cases_data, deaths_data, dataset, county_state, te
     df_la_long = df_la.melt(var_name='Date', value_name='Cumulative Count')
     # Convert the 'Date' column to datetime format
     df_la_long['Date'] = pd.to_datetime(df_la_long['Date'])
-    # Calculate the daily counts
-    df_la_long['Daily Count'] = df_la_long['Cumulative Count'].diff()
-    # If the first row is NaN due to the diff() operation, remove it
     la_data = df_la_long.copy()
     # Sort the data by date
     la_data = la_data.sort_values('Date')
+
+    df = la_data.copy()
+
+    # Fix Faulty Cumulative Counts
+    # Create new column for corrected counts
+    df['corrected_counts'] = df['Cumulative Count']
+
+    # Loop through the rows
+    for i in range(1, len(df) - 1):
+        # If count drops, replace with previous
+        if df.iloc[i, df.columns.get_loc('corrected_counts')] < df.iloc[i - 1, df.columns.get_loc('corrected_counts')]:
+            df.iloc[i, df.columns.get_loc('corrected_counts')] = df.iloc[i - 1, df.columns.get_loc('corrected_counts')]
+
+        # # If count is larger than average of its neighbours, replace with average
+        # elif df.iloc[i, df.columns.get_loc('corrected_counts')] > (
+        #         df.iloc[i - 1, df.columns.get_loc('corrected_counts')] + df.iloc[
+        #     i + 1, df.columns.get_loc('corrected_counts')]) / 2:
+        #     df.iloc[i, df.columns.get_loc('corrected_counts')] = (df.iloc[
+        #                                                               i - 1, df.columns.get_loc('corrected_counts')] +
+        #                                                           df.iloc[i + 1, df.columns.get_loc(
+        #                                                               'corrected_counts')]) / 2
+
+    # Special case for first row
+    if df.iloc[0, df.columns.get_loc('corrected_counts')] > df.iloc[1, df.columns.get_loc('corrected_counts')]:
+        df.iloc[0, df.columns.get_loc('corrected_counts')] = df.iloc[1, df.columns.get_loc('corrected_counts')]
+
+    df['Cumulative Count'] = df['corrected_counts']
+    la_data = df.drop(columns=['corrected_counts'])
+
+    # Calculate the daily counts
+    la_data['Daily Count'] = la_data['Cumulative Count'].diff()
+    la_data = la_data[:-1]
+
 
     # Rename the columns
     if agg_option == "Cumulative":
@@ -88,7 +118,7 @@ def get_time_series(confirmed_cases_data, deaths_data, dataset, county_state, te
         # Customize the layout
         fig.update_layout(
             title=f'Forecast and Actual COVID-19 {dataset} Counts for {county_state}',
-            title_x=0.4,
+            title_x=0.63,
             xaxis_title='Date',
             yaxis_title='Counts',
             showlegend=True,
@@ -115,15 +145,23 @@ def get_time_series(confirmed_cases_data, deaths_data, dataset, county_state, te
 def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color):
     # Take the most recent date from the datasets
     recent_date = confirmed_cases_data.columns[-1]
+    day_before_recent = confirmed_cases_data.columns[-2]
 
     # Calculate the fatality rate
     fatality_rate = deaths_data[recent_date] / confirmed_cases_data[recent_date] * 100
+
+    # Calculate Daily stats
+    daily_deaths = (deaths_data[recent_date] - deaths_data[day_before_recent])
+    daily_fatality_rate = 100 * ((deaths_data[recent_date] - deaths_data[day_before_recent]) /
+                                 (confirmed_cases_data[recent_date] - confirmed_cases_data[day_before_recent]))
 
     # Prepare a DataFrame for plotting
     data = confirmed_cases_data[["Admin2", "Province_State", "Lat", "Long_"]].copy()
     data["Confirmed Cases"] = confirmed_cases_data[recent_date]
     data["Deaths"] = deaths_data[recent_date]
     data["Fatality Rate"] = fatality_rate
+    data["Daily Fatality Rate"] = daily_fatality_rate
+    data["Daily Deaths"] = daily_deaths
     data["County, State"] = data["Admin2"] + ', ' + data['Province_State']
 
     # Clean Demographics data
@@ -145,21 +183,67 @@ def get_mapbox(confirmed_cases_data, deaths_data, demographics_data, size, color
                          'Income.Median Houseold Income': 'Median Income',
                          'Population.Population per Square Mile': 'Population Density'}, inplace=True)
 
-    # Create a scatter_mapbox plot
-    fig = px.scatter_mapbox(
-        data,
-        lat="Lat",
-        lon="Long_",
-        color=color,
-        size=size,
-        hover_name="County, State",
-        hover_data=["Confirmed Cases", "Deaths", "Fatality Rate"],
-        zoom=3.5,
-        title=f"COVID-19 Dashboard as of {recent_date}",
-        height=880,
-    )
+    try:
+        # Create a scatter_mapbox plot
+        fig = px.scatter_mapbox(
+            data,
+            lat="Lat",
+            lon="Long_",
+            color=color,
+            size=size,
+            hover_name="County, State",
+            hover_data=["Confirmed Cases", "Deaths", "Fatality Rate"],
+            zoom=3.5,
+            title=f"COVID-19 Dashboard as of {recent_date}",
+            height=780,
+            color_continuous_scale=px.colors.sequential.Plasma_r,
+        )
 
-    fig.update_layout(mapbox_style="open-street-map")
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+        fig.update_layout(mapbox_style="open-street-map")
+        fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    except ValueError:
+        data.dropna(inplace=True)
+        data[data['Daily Fatality Rate'] < 0] = 0
+        # Create a scatter_mapbox plot
+        fig = px.scatter_mapbox(
+            data,
+            lat="Lat",
+            lon="Long_",
+            color=color,
+            size=size,
+            hover_name="County, State",
+            hover_data=["Confirmed Cases", "Deaths", "Fatality Rate"],
+            zoom=3.5,
+            title=f"COVID-19 Dashboard as of {recent_date}",
+            height=880,
+        )
+
+        fig.update_layout(mapbox_style="open-street-map")
+        fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
 
     return fig, data
+
+
+def get_3D_scatter(data):
+    data.dropna(inplace=True)
+    # Create the 3D scatter plot
+    fig = px.scatter_3d(data,
+                        x='Population Density',
+                        y='Percent 65+',
+                        z='Median Income',
+                        color='Fatality Rate',
+                        size='Fatality Rate',
+                        hover_name='County, State',
+                        color_continuous_scale=px.colors.sequential.Plasma_r,
+                        log_x=True)
+
+    # Update layout
+    fig.update_layout(title='',
+                      scene=dict(
+                          xaxis_title='Population Density',
+                          yaxis_title='Percent 65+',
+                          zaxis_title='Median Income'),
+                      autosize=False,
+                      width=1780, height=900)
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    return fig
